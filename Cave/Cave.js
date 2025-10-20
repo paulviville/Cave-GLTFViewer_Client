@@ -4,6 +4,7 @@ import StereoCamera from './StereoScreenCamera.js';
 export default class Cave {
 	#screens;
 	#stereoScreenCameras;
+    #transform = new THREE.Matrix4();
 
 	constructor ( screens ) {
 		this.#screens = [ ...screens ];
@@ -22,9 +23,17 @@ export default class Cave {
 		return this.#stereoScreenCameras;
 	}
 
-	updateStereoScreenCameras ( headMatrix ) {
+    set transform ( transform ) {
+        console.log("transform cave")
+        this.#transform.copy(transform);
+        for( const stereoScreenCamera of this.#stereoScreenCameras ) {
+			stereoScreenCamera.transform = transform;
+		}
+    }
+
+	updateStereoScreenCameras ( headMatrix, transform ) {
 		for( const stereoScreenCamera of this.#stereoScreenCameras ) {
-			stereoScreenCamera.update(headMatrix);
+			stereoScreenCamera.update(headMatrix, transform);
 		}
 	}
 }

@@ -52,16 +52,25 @@ export default class StereoScreenCamera {
 		this.#eyeSeparation = dist;
 	}
 
-	update ( headMatrix, transform ) {
-		if ( transform ) {
-			this.#transform.copy( transform );
-		}
+    set transform ( transform ) {
+        console.log("transform")
+        this.#transform.copy(transform);
+        this.#computeScreenSpace();
+    }
+
+    get corners ( ) {
+        return this.#screen.corners.map(c => c.clone().applyMatrix4(this.#transform));
+    }
+
+	update ( headMatrix ) {
 		
 		const leftEye = new THREE.Vector3(-this.#eyeSeparation / 2, 0.0, -0.015);
 		const rightEye = new THREE.Vector3(this.#eyeSeparation / 2, 0.0, -0.015);
 
 		leftEye.applyMatrix4(headMatrix);
 		rightEye.applyMatrix4(headMatrix);
+        // leftEye.applyMatrix4(this.#transform);
+		// rightEye.applyMatrix4(this.#transform);
 		this.#leftEye.copy(leftEye);
 		this.#rightEye.copy(rightEye);
 
@@ -82,7 +91,7 @@ export default class StereoScreenCamera {
 	}
 
 	#computeScreenSpace ( ) {
-		const corners = this.#screen.corners.map(c => c.clone().applyMatrix4(this.#transform));
+		const corners = this.corners;
 		this.#ssX.copy(corners[1]).sub(corners[0]).normalize(); 
 		this.#ssY.copy(corners[2]).sub(corners[0]).normalize(); 
 		this.#ssZ.crossVectors(this.#ssX, this.#ssY).normalize(); 
@@ -99,7 +108,9 @@ export default class StereoScreenCamera {
 		const projection = new Matrix4();
 		const view = new Matrix4();
 
-		const corners = this.#screen.corners;
+		// const corners = this.#screen.corners;
+        // this.#computeScreenSpace ( )
+		const corners = this.#screen.corners.map(c => c.clone().applyMatrix4(this.#transform));
 
 		const eye0 = corners[0].clone().sub(eye);
 		const eye1 = corners[1].clone().sub(eye);

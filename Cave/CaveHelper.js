@@ -32,8 +32,12 @@ export default class CaveHelper extends Object3D {
 		for(const stereoScreenCamera of this.#cave.stereoScreenCameras) {
 			this.#stereoScreenCameraHelpers.add(new StereoScreenCameraHelper(stereoScreenCamera, new Color(stereoScreenCameraColors.shift())));
 		}
-		this.add(this.#stereoScreenCameraHelpers);
+		// this.add(this.#stereoScreenCameraHelpers);
 	}
+
+    get stereoScreenCameraHelpers () {
+        return this.#stereoScreenCameraHelpers
+    }
 
 	updateStereoScreenCameraHelpers ( ) {
 		for(const stereoScreenCameraHelper of this.#stereoScreenCameraHelpers.children) {
