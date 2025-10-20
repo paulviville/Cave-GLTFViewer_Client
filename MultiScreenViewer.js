@@ -28,7 +28,7 @@ export default class MultiScreenViewer {
 		const offScreenCanvas = canvas.transferControlToOffscreen( );
 		this.#worker.postMessage({ type: "monitorCanvas", canvas: offScreenCanvas }, [offScreenCanvas] );
 
-		const worldUp = new THREE.Vector3(0, 0, 1);
+		const worldUp = new THREE.Vector3(0, 1, 0);
 		this.#camera = new THREE.PerspectiveCamera( 70, 800/600, 0.1, 1 );
 		this.#camera.up.copy(worldUp);
 		this.#camera.position.set( -2, -4, 3 );

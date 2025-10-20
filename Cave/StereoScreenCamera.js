@@ -17,6 +17,7 @@ export default class StereoScreenCamera {
 	#ssZ = new THREE.Vector3();
 	#ssRotation = new THREE.Matrix4();
 
+	#transform = new THREE.Matrix4();
 
 	constructor ( screen ) {
 		this.#screen = screen;
@@ -51,7 +52,11 @@ export default class StereoScreenCamera {
 		this.#eyeSeparation = dist;
 	}
 
-	update ( headMatrix ) {
+	update ( headMatrix, transform ) {
+		if ( transform ) {
+			this.#transform.copy( transform );
+		}
+		
 		const leftEye = new THREE.Vector3(-this.#eyeSeparation / 2, 0.0, -0.015);
 		const rightEye = new THREE.Vector3(this.#eyeSeparation / 2, 0.0, -0.015);
 
@@ -77,7 +82,7 @@ export default class StereoScreenCamera {
 	}
 
 	#computeScreenSpace ( ) {
-		const corners = this.#screen.corners;
+		const corners = this.#screen.corners.map(c => c.clone().applyMatrix4(this.#transform));
 		this.#ssX.copy(corners[1]).sub(corners[0]).normalize(); 
 		this.#ssY.copy(corners[2]).sub(corners[0]).normalize(); 
 		this.#ssZ.crossVectors(this.#ssX, this.#ssY).normalize(); 

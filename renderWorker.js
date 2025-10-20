@@ -10,12 +10,10 @@ import VRPNController from "./VRPNController.js";
 import SceneInterface from './GLTFViewer/SceneInterface.js';
 import SceneController from './GLTFViewer/SceneController.js';
 import ClientManager from './GLTFViewer/ClientManager.js';
+import CaveSceneController from "./GLTFViewer/CaveSceneController.js";
 
-
-console.log("worker");
 
 self.addEventListener("message", handleMessage )
-
 
 function handleMessage ( message ) {
 	// console.log(message);
@@ -83,7 +81,7 @@ const cave = new Cave(screens);
 const stereoCameras = cave.stereoScreenCameras;
 const caveHelper = new CaveHelper(cave);
 scene.add(caveHelper)
-caveHelper.hideStereoScreenCameraHelpers()
+// caveHelper.hideStereoScreenCameraHelpers()
 
 const debugStereo = new THREE.Group()
 scene.add(debugStereo);
@@ -120,6 +118,11 @@ scene.add(pointer)
 let renderer = undefined;
 let renderLeft = true;
 
+const caveTransform = new THREE.Matrix4();
+const caveRotation = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(1, 0, 0), -Math.PI/2);
+const caveTranslate = new THREE.Vector3(0, -0.75, +1.5);
+const caveScale = new THREE.Vector3(1, 1, 1);
+
 function initRenderer ( canvas ) {
 	renderer = new THREE.WebGLRenderer({ canvas: canvas });
 
@@ -128,8 +131,11 @@ function initRenderer ( canvas ) {
 		trackedCamera.updateWorldMatrix();
 		trackedCameraHelper.update();
 
-
-		cave.updateStereoScreenCameras(trackedCamera.matrixWorld.clone());
+		caveTransform.compose(caveTranslate, caveRotation, caveScale);
+		caveHelper.position.copy(caveTranslate);
+		caveHelper.quaternion.copy(caveRotation);
+		caveHelper.scale.copy(caveScale);
+		cave.updateStereoScreenCameras(trackedCamera.matrixWorld.clone(), caveTransform);
 		caveHelper.updateStereoScreenCameraHelpers();
 
 
@@ -184,11 +190,19 @@ const sceneDescriptor = new SceneDescriptor();
 const gltf = await sceneInterface.loadFile(`./GLTFViewer/glTF/ABeautifulGame.gltf`);
 sceneDescriptor.loadGLTF(gltf.parser.json);
 
-// const sceneController = new SceneController(sceneInterface, sceneDescriptor);
-scene.add(...sceneInterface.scene.children)
+const sceneController = new CaveSceneController(sceneInterface, sceneDescriptor);
+scene.add(sceneInterface.scene)
 console.log(sceneInterface.scene)
 
 
+
+const port = 8080;
+const clientManager = new ClientManager();
+clientManager.connect(port);
+
+
+sceneController.clientManager = clientManager;
+clientManager.sceneController = sceneController;
 
 
 

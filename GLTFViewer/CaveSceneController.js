@@ -11,7 +11,7 @@ import InputController from './InputController.js';
 // import VRController from './VRController.js';
 
 
-export default class SceneController {
+export default class CaveSceneController {
 	#sceneInterface;
 	#sceneDescriptor;
 	#clientManager;
@@ -69,6 +69,7 @@ export default class SceneController {
 
 
 		// this.#camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 0.1, 100 );
+		this.#camera = new THREE.PerspectiveCamera( 50, 1, 0.1, 100 );
 		// this.#camera.position.set( -2, 3, -3 );
 
 		// this.#inputController = new InputController(
